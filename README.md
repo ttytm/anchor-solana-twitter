@@ -4,12 +4,12 @@ It was written based on [Loris Leiva's](https://github.com/lorisleiva) tutorial 
 
 The functionalities that were added on top of the free guide are:
 
-- Edit tweets
+- Edit tweets<br>
  Check if the tweet has changed. If yes, update it and mark it as edited
 
 - Delete tweets
 
-- Rate tweets
+- Rate tweets<br>
  Up- / Down vote
 
 Furthermore, it was updated to run with the newest version of anchor (v24.02 TD).

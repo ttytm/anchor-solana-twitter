@@ -1,6 +1,6 @@
 # anchor-solana-twitter
 
-Twitter application on the Solana blockchain with the anchor framework
+Twitter application on the Solana blockchain user the Anchor framework
 
 A big thanks goes out to [Loris Leiva](https://github.com/lorisleiva).
 Who's tutorial series [Create a Solana dApp from scratch](https://lorisleiva.com/create-a-solana-dapp-from-scratch) served as a great learning resource for this project.

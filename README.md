@@ -17,7 +17,7 @@ The functionalities that were added on top of the free part of the series are:
 
 Furthermore, it was updated to run with the newest version of anchor (v24.02 TD).
 
-`npm i` installs some dependencies for then building and running the CLI test application with `anchor test`.
 _(Assuming Solana and anchor are installed)_
+`npm i` installs some dependencies to then build and run the CLI test-application with `anchor test`.
 
 The functionalities can be implemented in an frontend build in the framework of preference.

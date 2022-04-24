@@ -1,11 +1,13 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { SolanaTwitter } from "../target/types/solana_twitter";
+import { AnchorSolanaTwitter } from "../target/types/anchor_solana_twitter";
+import type { PublicKey as PublicKeyType } from "@solana/web3.js";
+import type { Keypair } from "@solana/web3.js";
 import * as assert from "assert";
 import * as bs58 from "bs58";
 
-describe("solana-twitter", () => {
-	const program = anchor.workspace.SolanaTwitter as Program<SolanaTwitter>;
+describe("anchor-solana-twitter", () => {
+	const program = anchor.workspace.AnchorSolanaTwitter as Program<AnchorSolanaTwitter>;
 	const programProvider = anchor.AnchorProvider.env()
 
 	// Configure the client to use the local cluster.
@@ -19,7 +21,7 @@ describe("solana-twitter", () => {
 	// Tweet 1
 	it("can send a new tweet", async () => {
 		const tweetKeypair = anchor.web3.Keypair.generate();
-		await program.rpc.sendTweet("veganism", "Hummus, am i right 🧆?", {
+		await program.rpc.sendTweet("veganism", "Hummus, am i right 🧆?", null, {
 			accounts: {
 				tweet: tweetKeypair.publicKey,
 				user: userOne.publicKey,
@@ -31,20 +33,20 @@ describe("solana-twitter", () => {
 		});
 
 		// Fetch the created tweet
-		const tweetState = await program.account.tweet.fetch(tweetKeypair.publicKey);
+		const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
 
 		// Ensure it has the right data
-		assert.equal(tweetState.user.toBase58(), programProvider.wallet.publicKey.toBase58());
-		assert.equal(tweetState.tag, "veganism");
-		assert.equal(tweetState.content, "Hummus, am i right 🧆?");
-		assert.ok(tweetState.timestamp);
-		// console.log('Sent tweet :', tweetAccount);
+		assert.equal(tweet.user.toBase58(), programProvider.wallet.publicKey.toBase58());
+		assert.equal(tweet.tag, "veganism");
+		assert.equal(tweet.content, "Hummus, am i right 🧆?");
+		assert.ok(tweet.timestamp);
+		// console.log('Sent tweet :', tweet);
 	});
 
 	// Tweet 2
 	it("can send a new tweet without a tag", async () => {
 		const tweetKeypair = anchor.web3.Keypair.generate();
-		await program.rpc.sendTweet("", "gm", {
+		await program.rpc.sendTweet("", "gm", null, {
 			accounts: {
 				tweet: tweetKeypair.publicKey,
 				user: programProvider.wallet.publicKey,
@@ -54,13 +56,13 @@ describe("solana-twitter", () => {
 		});
 
 		// Fetch the created tweet
-		const tweetState = await program.account.tweet.fetch(tweetKeypair.publicKey);
+		const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
 
 		// Ensure it has the right data
-		assert.equal(tweetState.user.toBase58(), programProvider.wallet.publicKey.toBase58());
-		assert.equal(tweetState.tag, "");
-		assert.equal(tweetState.content, "gm");
-		assert.ok(tweetState.timestamp);
+		assert.equal(tweet.user.toBase58(), programProvider.wallet.publicKey.toBase58());
+		assert.equal(tweet.tag, "");
+		assert.equal(tweet.content, "gm");
+		assert.ok(tweet.timestamp);
 		// console.log('Tweet sent without a tag: ', tweet);
 	});
 
@@ -74,7 +76,7 @@ describe("solana-twitter", () => {
 		await programProvider.connection.confirmTransaction(signature);
 
 		const tweetKeypair = anchor.web3.Keypair.generate();
-		await program.rpc.sendTweet("veganism", "Yay Tofu 🍜!", {
+		await program.rpc.sendTweet("veganism", "Yay Tofu 🍜!", null, {
 			accounts: {
 				tweet: tweetKeypair.publicKey,
 				user: otherUser.publicKey,
@@ -84,23 +86,24 @@ describe("solana-twitter", () => {
 		});
 
 		// Fetch the created tweet
-		const tweetState = await program.account.tweet.fetch(tweetKeypair.publicKey);
+		const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
 
 		// Ensure it has the right data
-		assert.equal(tweetState.user.toBase58(), otherUser.publicKey.toBase58());
-		assert.equal(tweetState.tag, "veganism");
-		assert.equal(tweetState.content, "Yay Tofu 🍜!");
-		assert.ok(tweetState.timestamp);
+		assert.equal(tweet.user.toBase58(), otherUser.publicKey.toBase58());
+		assert.equal(tweet.tag, "veganism");
+		assert.equal(tweet.content, "Yay Tofu 🍜!");
+		assert.ok(tweet.timestamp);
 		// console.log('Tweet by different user: ', tweet);
 	});
 
 	// Helper functions to call the "SendTweet" instruction to stop repeating ourselfs
-	const sendTweet = async (tweetKeypair, user, tag, content) => {
-		// Anchor nests the provider.wallet keypair inside the payer object 
-		// use 'user.payer' as 'user' if tweet is sent from the provider.wallet
+	const sendTweet = async (tweetKeypair: Keypair, user, tag: string, content: string, recepient: PublicKeyType) => {
+		// Anchor nests the provider.wallet keypair inside a payer object 
+		// use 'user.payer' as 'oser' if tweet is sent from the provider.wallet
 		user.payer != null ? user = user.payer : user
+		// recepient == recepient || user.publicKey
 
-		await program.rpc.sendTweet(tag, content, {
+		await program.rpc.sendTweet(tag, content, recepient, {
 			accounts: {
 				tweet: tweetKeypair.publicKey,
 				user: user.publicKey,
@@ -114,7 +117,7 @@ describe("solana-twitter", () => {
 		try {
 			const tweetKeypair = anchor.web3.Keypair.generate();
 			const tagWith51Chars = "x".repeat(51);
-			await sendTweet(tweetKeypair, userOne, tagWith51Chars, "takes over!");
+			await sendTweet(tweetKeypair, userOne, tagWith51Chars, "takes over!", null);
 		} catch (err) {
 			assert.equal(
 				err.error.errorMessage,
@@ -130,7 +133,7 @@ describe("solana-twitter", () => {
 		try {
 			const tweetKeypair = anchor.web3.Keypair.generate();
 			const contentWith281Chars = "x".repeat(281);
-			await sendTweet(tweetKeypair, userOne, "veganism", contentWith281Chars);
+			await sendTweet(tweetKeypair, userOne, "veganism", contentWith281Chars, null);
 		} catch (err) {
 			assert.equal(
 				err.error.errorMessage,
@@ -144,9 +147,20 @@ describe("solana-twitter", () => {
 		);
 	});
 
+	// Tweet 4
+	it("can send a tweet to another user", async () => {
+		const tweetKeypair = anchor.web3.Keypair.generate();
+		await sendTweet(tweetKeypair, userOne, "Hello", "Whats up?", otherUser.publicKey);
+
+		const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
+
+		assert.equal(tweet.recipient.toString(), otherUser.publicKey.toString());
+		// console.log('tweet sent to another user', tweet)
+	});
+
 	it("can fetch all tweets", async () => {
 		const tweets = await program.account.tweet.all();
-		assert.equal(tweets.length, 3);
+		assert.equal(tweets.length, 4);
 	});
 
 	it("can filter tweets by user", async () => {
@@ -161,15 +175,35 @@ describe("solana-twitter", () => {
 		]);
 
 		// Check if the fetched amout of tweets is equal to those the user sent
-		assert.equal(tweets.length, 2);
+		assert.equal(tweets.length, 3);
 		assert.ok(
-			tweets.every((tweetAccount) => {
+			tweets.every((tweet) => {
 				return (
-					tweetAccount.account.user.toBase58() === userPublicKey.toBase58()
+					tweet.account.user.toBase58() === userPublicKey.toBase58()
 				);
 			})
 		);
 		// console.log('Tweets filtered by user: ', tweets);
+	});
+
+	it("can filter tweets by recepient", async () => {
+		const tweets = await program.account.tweet.all([
+			{
+				memcmp: {
+					offset:
+						8 + // Discriminator.
+						32, // User public key.
+					bytes: otherUser.publicKey.toBase58(),
+				},
+			},
+		]);
+
+		assert.ok(
+			tweets.every((tweet) => {
+				return tweet.account.recipient.toBase58() == otherUser.publicKey.toBase58();
+			})
+		);
+		// console.log('Tweets filtered by dm: ', tweets);
 	});
 
 	it("can filter tweets by tags", async () => {
@@ -179,6 +213,7 @@ describe("solana-twitter", () => {
 					offset:
 						8 + // Discriminator.
 						32 + // User public key.
+						32 + // Recepient public key.
 						8 + // Timestamp.
 						4, // Tag string prefix.
 					bytes: bs58.encode(Buffer.from("veganism")),
@@ -195,11 +230,11 @@ describe("solana-twitter", () => {
 		// console.log('Tweets filtered by tag: ', tweets);
 	});
 
-	// Tweet 4
+	// Tweet 5
 	it("can update a tweet", async () => {
 		const tweetKeypair = anchor.web3.Keypair.generate();
 		// Use the sendTweet function to call the "SendTweet" instruction
-		await sendTweet(tweetKeypair, userOne, "web3", "takes over!");
+		await sendTweet(tweetKeypair, userOne, "web3", "takes over!", null);
 		// Fetch its details
 		const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
 
@@ -225,11 +260,11 @@ describe("solana-twitter", () => {
 		assert.equal(updatedTweet.edited, true);
 	});
 
-	// Tweet 5
+	// Tweet 6
 	it("cannot update a tweet that wasn't changed", async () => {
 		try {
 			const tweetKeypair = anchor.web3.Keypair.generate();
-			await sendTweet(tweetKeypair, userOne, "web3", "takes over!");
+			await sendTweet(tweetKeypair, userOne, "web3", "takes over!", null);
 			const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
 
 			// Check if it was received correctly
@@ -253,10 +288,10 @@ describe("solana-twitter", () => {
 		);
 	});
 
-	// Tweet 6
+	// Tweet 7
 	it("can upvote a tweet", async () => {
 		const goodTweetKeypair = anchor.web3.Keypair.generate();
-		await sendTweet(goodTweetKeypair, userOne, "web3", "takes over");
+		await sendTweet(goodTweetKeypair, userOne, "web3", "takes over", null);
 		const goodTweet = await program.account.tweet.fetch(goodTweetKeypair.publicKey);
 
 		// Check that the tweet has no rating yet
@@ -275,13 +310,13 @@ describe("solana-twitter", () => {
 		);
 
 		assert.ok(upvotedTweet.rating == 1);
-		console.log("Rating: ", upvotedTweet.rating);
+		// console.log("Rating: ", upvotedTweet.rating);
 	});
 
 	// Define on global scope so it can be downvoted multiple times
 	let badTweetKeypair = anchor.web3.Keypair.generate();
 
-	// Tweet 7
+	// Tweet 8
 	it("can downvote a tweet", async () => {
 		// Airdrop some SOL
 		const signature = await programProvider.connection.requestAirdrop(
@@ -290,7 +325,8 @@ describe("solana-twitter", () => {
 		);
 		await programProvider.connection.confirmTransaction(signature);
 
-		await sendTweet(badTweetKeypair, confusedUser, "hejustwantsourbest", "i like bill gates");
+		await sendTweet(badTweetKeypair, confusedUser, "hejustwantsourbest", "i like bill gates", null
+		);
 		const badTweet = await program.account.tweet.fetch(
 			badTweetKeypair.publicKey
 		);
@@ -311,7 +347,7 @@ describe("solana-twitter", () => {
 		);
 
 		assert.ok(downvotedTweet.rating == -1);
-		console.log("Rating: ", downvotedTweet.rating);
+		// console.log("Rating: ", downvotedTweet.rating);
 	});
 
 	it("can downvote a tweet again", async () => {
@@ -334,7 +370,6 @@ describe("solana-twitter", () => {
 		);
 
 		assert.ok(downvotedTweet.rating == -2);
-		console.log("Rating: ", downvotedTweet.rating);
+		// console.log("Rating: ", downvotedTweet.rating);
 	});
 });
-

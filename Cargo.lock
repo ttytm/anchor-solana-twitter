@@ -165,6 +165,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "anchor-solana-twitter"
+version = "0.1.0"
+dependencies = [
+ "anchor-lang",
+]
+
+[[package]]
 name = "anchor-syn"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1107,13 +1114,6 @@ dependencies = [
  "quote",
  "rustversion",
  "syn",
-]
-
-[[package]]
-name = "solana-twitter"
-version = "0.1.0"
-dependencies = [
- "anchor-lang",
 ]
 
 [[package]]

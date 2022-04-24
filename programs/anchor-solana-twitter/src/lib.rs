@@ -3,9 +3,14 @@ use anchor_lang::prelude::*;
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
 #[program]
-pub mod solana_twitter {
+pub mod anchor_solana_twitter {
     use super::*;
-    pub fn send_tweet(ctx: Context<SendTweet>, tag: String, content: String) -> Result<()> {
+    pub fn send_tweet(
+        ctx: Context<SendTweet>,
+        tag: String,
+        content: String,
+        recipient: Option<Pubkey>,
+    ) -> Result<()> {
         let tweet = &mut ctx.accounts.tweet;
         let user: &Signer = &ctx.accounts.user;
         let clock: Clock = Clock::get().unwrap();
@@ -15,6 +20,7 @@ pub mod solana_twitter {
         require!(content.chars().count() <= 280, ErrorCode::ContentTooLong);
 
         tweet.user = *user.key;
+        tweet.recipient = recipient.unwrap_or(*user.key);
         tweet.timestamp = clock.unix_timestamp;
         tweet.tag = tag;
         tweet.content = content;
@@ -115,6 +121,7 @@ pub struct DeleteTweet<'info> {
 #[account]
 pub struct Tweet {
     pub user: Pubkey,
+    pub recipient: Pubkey,
     pub timestamp: i64,
     pub tag: String,
     pub content: String,
@@ -136,6 +143,7 @@ const RATING_LENGTH: usize = 1;
 impl Tweet {
     const LEN: usize = DISCRIMINATOR_LENGTH
         + PUBLIC_KEY_LENGTH // user
+        + PUBLIC_KEY_LENGTH // recipient
         + TIMESTAMP_LENGTH
         + STRING_LENGTH_PREFIX + MAX_TOPIC_LENGTH
         + STRING_LENGTH_PREFIX + MAX_CONTENT_LENGTH

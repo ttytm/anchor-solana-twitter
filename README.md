@@ -27,4 +27,3 @@ Furthermore, it was updated to run with the newest version of anchor (v24.02 TD)
 
 [1]: https://github.com/lorisleiva
 [2]: https://lorisleiva.com/create-a-solana-dapp-from-scratch
-

@@ -9,7 +9,7 @@ describe("anchor-solana-twitter", () => {
 	const provider = anchor.AnchorProvider.env() as anchor.AnchorProvider;
 	anchor.setProvider(provider);
 
-	// Declare some user adresses on global scope to allow acting across tests
+	// Declare some user addresses on global scope to allow acting across tests
 	let user = provider.wallet;
 	// Hardcode address(e.g., your  phantom wallet) to allow testing dms in frontend
 	const dmRecipient = new PublicKey("7aCWNQmgu5oi4W9kQBRRiuBkUMqCuj5xTA1DsT7vz8qa");
@@ -28,6 +28,8 @@ describe("anchor-solana-twitter", () => {
 		return Promise.all(promises);
 	}
 
+	// Reason we fall back to type any for `user`, is that the types of a "regular" keypair wallet and 
+	// the provider.wallet - which is used as the default user in the scope of this test - differ.
 	const sendTweet = async (user: any, tag: string, content: string) => {
 		const tweetKeypair = Keypair.generate();
 
@@ -37,7 +39,7 @@ describe("anchor-solana-twitter", () => {
 				user: user.publicKey,
 				systemProgram: anchor.web3.SystemProgram.programId,
 			})
-			.signers(user instanceof (anchor.Wallet as any) ? [tweetKeypair] : [user, tweetKeypair])
+			.signers(user instanceof (anchor.Wallet) ? [tweetKeypair] : [user, tweetKeypair])
 			.rpc();
 
 		const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
@@ -58,6 +60,22 @@ describe("anchor-solana-twitter", () => {
 
 		const comment = await program.account.comment.fetch(commentKeypair.publicKey);
 		return { publicKey: commentKeypair.publicKey, account: comment }
+	};
+
+	const sendDm = async (user: any, recipient: PublicKey, content: string) => {
+		const dmKeypair = Keypair.generate();
+		await program.methods.sendDm(recipient, content)
+			.accounts({
+				dm: dmKeypair.publicKey,
+				user: user.publicKey,
+				systemProgram: anchor.web3.SystemProgram.programId,
+			})
+			.signers(user instanceof (anchor.Wallet as any) ? [dmKeypair] : [user, dmKeypair])
+			.rpc();
+		assert.equal((await program.account.dm.fetch(dmKeypair.publicKey)).recipient.toBase58(), dmRecipient.toBase58());
+
+		const dm = await program.account.dm.fetch(dmKeypair.publicKey);
+		return { publicKey: dmKeypair.publicKey, account: dm }
 	};
 
 	const vote = async (user: any, tweet: PublicKey, result: {}) => {
@@ -84,7 +102,7 @@ describe("anchor-solana-twitter", () => {
 			const tweet = await sendTweet(user, "veganism", "Hummus, am i right 🧆?");
 			// Fetch the created tweet
 			// Ensure it has the right data
-			assert.equal(tweet.account.user.toBase58(), provider.wallet.publicKey.toBase58());
+			assert.equal(tweet.account.user.toBase58(), user.publicKey.toBase58());
 			assert.equal(tweet.account.tag, "veganism");
 			assert.equal(tweet.account.content, "Hummus, am i right 🧆?");
 			assert.ok(tweet.account.timestamp);
@@ -284,17 +302,16 @@ describe("anchor-solana-twitter", () => {
 	})
 
 	describe("direct messages", () => {
-		it("can send a direct message to another user", async () => {
-			const dmKeypair = Keypair.generate();
-			await program.methods.sendDm(dmRecipient, "Hey what's up?")
-				.accounts({
-					dm: dmKeypair.publicKey,
-					user: user.publicKey,
-					systemProgram: anchor.web3.SystemProgram.programId,
-				})
-				.signers([dmKeypair])
+		it("can send and update direct messages to other users", async () => {
+			const dm = await sendDm(user, dmRecipient, "Hey what's up?");
+			assert.equal((await program.account.dm.fetch(dm.publicKey)).recipient.toBase58(), dmRecipient.toBase58());
+
+			await program.methods.updateDm("Yo, u there?")
+				.accounts({ dm: dm.publicKey, user: user.publicKey })
 				.rpc();
-			assert.equal((await program.account.dm.fetch(dmKeypair.publicKey)).recipient.toBase58(), dmRecipient.toBase58());
+			const updatedDm = await program.account.dm.fetch(dm.publicKey);
+			assert.equal(updatedDm.content, "Yo, u there?");
+			assert.equal(updatedDm.edited, true);
 		});
 
 		it("can fetch and filter a users direct messages", async () => {

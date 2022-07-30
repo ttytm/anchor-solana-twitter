@@ -4,7 +4,7 @@ Extends and refactors the v1-branch.
 
 ## Major changes
 
--  Votings are their own account using PDAs, instead of just updating a counter on an existing tweet
+-  Votings are their own accounts using PDAs, instead of just updating a counter on an existing tweet
 
    -  enables to filter votings for a user
    -  less costs for sending a vote
@@ -55,7 +55,7 @@ anchor-solana-twitter
 		✔ can vote and update votings for tweets
 		✔ can derive tweets from a users votings
 	direct messages
-		✔ can send a direct message to another user
+		✔ can send and update direct messages to other users
 		✔ can fetch and filter a users direct messages
 	user alias
 		✔ can create, update and delete a user alias

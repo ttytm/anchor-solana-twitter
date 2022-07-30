@@ -1,18 +1,14 @@
 # anchor-solana-twitter
 
-Aims to update, refactor and extend the v1-branch.
+Extends and refactors the v1-branch.
 
 ## Major changes
 
--  New api syntax
+-  Votings are their own account using PDAs, instead of just updating a counter on an existing tweet
 
-   -  abandon deprecated `.rpc` in favor of `.methods` syntax
-
--  Votings are accounts, instead of just updating a counter on an existing tweet
-
-   -  enables filtering votings by users
+   -  enables to filter votings for a user
    -  less costs for sending a vote
-   -  `rating` counter on the tweet becomes obsolete
+   -  the `rating` counter on tweets becomes obsolete, which results in slimmer tweet accounts
 
 -  Direct messages are separate accounts instead of being a tweet
 
@@ -23,16 +19,19 @@ Aims to update, refactor and extend the v1-branch.
 
 -  Users can create aliases
 
+-  New api syntax for tests
+
+   -  abandon deprecated `.rpc` in favor of `.methods` syntax
+
 ## Tests
 
-How to install the prerequisites to run an anchor program, is nicely explained in the [anchor book][1].
+The installation of the prerequisites to run an anchor program, is nicely explained in the [anchor book][1].
 
 Having the prerequisites out of the way, the `yarn` command will load some program dependencies.
 
-To then be able to run the tests: change the destination of **`wallet`** under the `[provider]` section in the `Anchor.toml` file according to your systems configuration. 
-Usually, it should be enough to change the home path.
+To then be able to run the tests: update the path of **`wallet`** in the `Anchor.toml` file under the `[provider]` section according to your systems configuration. Usually, it should be enough to change the `<username>` in the home path.
 
-Building and running the test happens with `anchor test`.
+Building and running the test can be done with `anchor test`.
 
 To use the tests while working on a frontend run the localnet with `anchor localnet`.<br>
 In another terminal airdrop your wallet some SOL and load the test `solana airdrop 1000 <YourPhantomWalletPubKey> && anchor run test`.

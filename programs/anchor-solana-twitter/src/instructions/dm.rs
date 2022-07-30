@@ -13,6 +13,20 @@ pub fn send_dm(ctx: Context<SendDm>, recipient: Pubkey, content: String) -> Resu
 	dm.recipient = recipient;
 	dm.timestamp = clock.unix_timestamp;
 	dm.content = content;
+	dm.edited = false;
+
+	Ok(())
+}
+
+pub fn update_dm(ctx: Context<UpdateDm>, new_content: String) -> Result<()> {
+	let dm = &mut ctx.accounts.dm;
+
+	require!(dm.content != new_content, ErrorCode::NothingChanged);
+	require!(new_content.chars().count() <= 280, ErrorCode::ContentTooLong);
+	require!(new_content.chars().count() > 0, ErrorCode::NoContent);
+
+	dm.content = new_content;
+	dm.edited = true;
 
 	Ok(())
 }

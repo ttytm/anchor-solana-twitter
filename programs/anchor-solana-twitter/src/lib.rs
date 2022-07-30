@@ -25,7 +25,7 @@ pub mod anchor_solana_twitter {
 	}
 
 	// Comment
-	pub fn send_comment(ctx: Context<SendComment>, tweet: Pubkey, content: String, parent: Option<Pubkey>,) -> Result<()> {
+	pub fn send_comment(ctx: Context<SendComment>, tweet: Pubkey, content: String, parent: Option<Pubkey>) -> Result<()> {
 		instructions::send_comment(ctx, tweet, content, parent)
 	}
 
@@ -49,6 +49,10 @@ pub mod anchor_solana_twitter {
 	// DM
 	pub fn send_dm(ctx: Context<SendDm>, recipient: Pubkey, content: String) -> Result<()> {
 		instructions::send_dm(ctx, recipient, content)
+	}
+
+	pub fn update_dm(ctx: Context<UpdateDm>, new_content: String) -> Result<()> {
+		instructions::update_dm(ctx, new_content)
 	}
 
 	// User alias

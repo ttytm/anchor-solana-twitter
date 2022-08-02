@@ -2,12 +2,7 @@ use crate::errors::ErrorCode;
 use crate::state::comment::*;
 use anchor_lang::prelude::*;
 
-pub fn send_comment(
-	ctx: Context<SendComment>,
-	tweet: Pubkey,
-	content: String,
-	parent: Option<Pubkey>,
-) -> Result<()> {
+pub fn send_comment(ctx: Context<SendComment>, tweet: Pubkey, content: String, parent: Option<Pubkey>) -> Result<()> {
 	let comment = &mut ctx.accounts.comment;
 	let user: &Signer = &ctx.accounts.user;
 	let clock: Clock = Clock::get().unwrap();

@@ -181,12 +181,16 @@ describe("anchor-solana-twitter", () => {
 		});
 
 		it("can delete own tweets", async () => {
-			const tweetToDelete = await sendTweet(user, "", "gm");
+			// Send tweet #6 (#4 by userOne)
+			const tweetToDelete = await sendTweet(user, "shwubdi", "gm");
 
 			await program.methods.deleteTweet()
 				.accounts({ tweet: tweetToDelete.publicKey, user: user.publicKey })
 				.rpc();
-			assert.ok((await program.account.tweet.fetchNullable(tweetToDelete.publicKey)) === null);
+			const deletedTweet = await program.account.tweet.fetch(tweetToDelete.publicKey);
+			assert.equal(deletedTweet.tag, "[deleted]");
+			assert.equal(deletedTweet.content, "");
+			// assert.ok((await program.account.tweet.fetchNullable(tweetToDelete.publicKey)) === null);
 
 			// Try to delete other users tweet
 			const otherUser = await createUser();
@@ -207,14 +211,14 @@ describe("anchor-solana-twitter", () => {
 
 		it("can fetch and filter tweets", async () => {
 			const allTweets = await program.account.tweet.all();
-			assert.equal(allTweets.length, 5);
+			assert.equal(allTweets.length, 6);
 
 			const userTweets = await program.account.tweet.all([
 				// offset: 8 Discriminator
 				{ memcmp: { offset: 8, bytes: user.publicKey.toBase58() } },
 			]);
 			// Check if the fetched amount of tweets is equal to those the use sent
-			assert.equal(userTweets.length, 3);
+			assert.equal(userTweets.length, 4);
 			assert.ok(userTweets.every((tweet) => tweet.account.user.toBase58() === user.publicKey.toBase58()));
 
 			const tagTweets = await program.account.tweet.all([
@@ -247,11 +251,13 @@ describe("anchor-solana-twitter", () => {
 			assert.equal(commentComment.account.tweet.toBase58(), tweet.publicKey.toBase58());
 			assert.equal(commentComment.account.parent.toBase58(), tweetComment.publicKey.toBase58());
 
-			// Delete comment -  NOTE: currently no handling of child elements on parent delete
+			// Delete comment 
 			await program.methods.deleteComment()
 				.accounts({ comment: tweetComment.publicKey, user: user.publicKey })
 				.rpc();
-			assert.ok((await program.account.tweet.fetchNullable(tweetComment.publicKey)) === null);
+
+			const deletedComment = await program.account.comment.fetch(tweetComment.publicKey);
+			assert.equal(deletedComment.content, "");
 		});
 	})
 

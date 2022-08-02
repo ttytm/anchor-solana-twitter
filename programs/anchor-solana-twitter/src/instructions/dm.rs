@@ -30,3 +30,7 @@ pub fn update_dm(ctx: Context<UpdateDm>, new_content: String) -> Result<()> {
 
 	Ok(())
 }
+
+pub fn delete_dm(_ctx: Context<DeleteDm>) -> Result<()> {
+	Ok(())
+}

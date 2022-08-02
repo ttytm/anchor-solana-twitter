@@ -312,6 +312,18 @@ describe("anchor-solana-twitter", () => {
 			const updatedDm = await program.account.dm.fetch(dm.publicKey);
 			assert.equal(updatedDm.content, "Yo, u there?");
 			assert.equal(updatedDm.edited, true);
+
+		});
+
+		it("can delete a direct message", async () => {
+			const dm = await sendDm(user, dmRecipient, "Hello there 👋");
+			assert.equal((await program.account.dm.fetch(dm.publicKey)).recipient.toBase58(), dmRecipient.toBase58());
+
+			// Delete dm
+			await program.methods.deleteDm()
+				.accounts({ dm: dm.publicKey, user: user.publicKey })
+				.rpc();
+			assert.ok((await program.account.dm.fetchNullable(dm.publicKey)) === null);
 		});
 
 		it("can fetch and filter a users direct messages", async () => {

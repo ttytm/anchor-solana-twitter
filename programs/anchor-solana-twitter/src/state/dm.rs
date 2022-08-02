@@ -25,3 +25,10 @@ pub struct UpdateDm<'info> {
 	pub dm: Account<'info, Dm>,
 	pub user: Signer<'info>,
 }
+
+#[derive(Accounts)]
+pub struct DeleteDm<'info> {
+	#[account(mut, has_one = user, close = user)]
+	pub dm: Account<'info, Dm>,
+	pub user: Signer<'info>,
+}

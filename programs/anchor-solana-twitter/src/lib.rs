@@ -55,6 +55,10 @@ pub mod anchor_solana_twitter {
 		instructions::update_dm(ctx, new_content)
 	}
 
+	pub fn delete_dm(_ctx: Context<DeleteDm>) -> Result<()> {
+		instructions::delete_dm(_ctx)
+	}
+
 	// User alias
 	pub fn create_user_alias(ctx: Context<CreateUserAlias>, alias: String) -> Result<()> {
 		instructions::create_user_alias(ctx, alias)

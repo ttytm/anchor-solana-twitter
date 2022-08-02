@@ -133,7 +133,7 @@ describe("anchor-solana-twitter", () => {
 			// Send tweet #3 (#2 by userOne)
 			const tweet = await sendTweet(user, "", "gm");
 			assert.equal(tweet.account.user.toBase58(), provider.wallet.publicKey.toBase58());
-			assert.equal(tweet.account.tag, "");
+			assert.equal(tweet.account.tag, "[untagged]");
 			assert.equal(tweet.account.content, "gm");
 			assert.ok(tweet.account.timestamp);
 		});
@@ -258,7 +258,7 @@ describe("anchor-solana-twitter", () => {
 	describe("votings", () => {
 		it("can vote and update votings for tweets", async () => {
 			const [otherUser, confusedUser] = await createUsers(2)
-			const tweet = await sendTweet(otherUser, "Linux", "Don't forget about the GNU 🦬");
+			const tweet = await sendTweet(otherUser, "linux", "Don't forget about the GNU 🦬");
 			const anotherTweet = await sendTweet(confusedUser, "hejustwantsourbest", "I like BG 🤓");
 
 			const voting = await vote(user, tweet.publicKey, { dislike: {} })
@@ -297,7 +297,7 @@ describe("anchor-solana-twitter", () => {
 				.map((voting) => (program.account.tweet.fetch(voting.account.tweet)))
 			);
 			assert.equal(likedTweets.length, 1);
-			assert.equal(likedTweets[0].tag, "Linux");
+			assert.equal(likedTweets[0].tag, "linux");
 		});
 	})
 

@@ -2,18 +2,23 @@ use crate::errors::ErrorCode;
 use crate::state::tweet::*;
 use anchor_lang::prelude::*;
 
-pub fn send_tweet(ctx: Context<SendTweet>, tag: String, content: String) -> Result<()> {
+pub fn send_tweet(ctx: Context<SendTweet>, mut tag: String, content: String) -> Result<()> {
 	let tweet = &mut ctx.accounts.tweet;
 	let user: &Signer = &ctx.accounts.user;
 	let clock: Clock = Clock::get().unwrap();
 
 	require!(tag.chars().count() <= 50, ErrorCode::TagTooLong);
+	require!(tag.chars().all(|c| c.is_alphanumeric() || c == '-'), ErrorCode::UnallowedChars);
 	require!(content.chars().count() <= 280, ErrorCode::ContentTooLong);
 	require!(content.chars().count() > 0, ErrorCode::NoContent);
 
+	if tag == "" {
+		tag = "[untagged]".to_string()
+	}
+
 	tweet.user = *user.key;
 	tweet.timestamp = clock.unix_timestamp;
-	tweet.tag = tag;
+	tweet.tag = tag.to_lowercase();
 	tweet.content = content;
 	tweet.edited = false;
 

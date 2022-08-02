@@ -4,6 +4,8 @@ use anchor_lang::error_code;
 pub enum ErrorCode {
 	#[msg("Exceeding maximum tag length of 50 characters")]
 	TagTooLong,
+	#[msg("Tag contains unallowed characters")]
+	UnallowedChars,
 	#[msg("Trying to send a tweet without content")]
 	NoContent,
 	#[msg("Exceeding maximum content length of 280 characters")]

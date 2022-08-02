@@ -28,7 +28,7 @@ pub struct UpdateTweet<'info> {
 
 #[derive(Accounts)]
 pub struct DeleteTweet<'info> {
-	#[account(mut, has_one = user, close = user)]
+	#[account(mut, has_one = user)]
 	pub tweet: Account<'info, Tweet>,
 	pub user: Signer<'info>,
 }

@@ -29,7 +29,7 @@ pub struct UpdateComment<'info> {
 
 #[derive(Accounts)]
 pub struct DeleteComment<'info> {
-	#[account(mut, has_one = user, close = user)]
+	#[account(mut, has_one = user)]
 	pub comment: Account<'info, Comment>,
 	pub user: Signer<'info>,
 }

@@ -7,10 +7,6 @@ pub fn send_tweet(ctx: Context<SendTweet>, mut tag: String, content: String) -> 
 	let user: &Signer = &ctx.accounts.user;
 	let clock: Clock = Clock::get().unwrap();
 
-	if tag == "" {
-		tag = "[untagged]".to_string()
-	}
-
 	require!(tag.chars().count() <= 50, ErrorCode::TagTooLong);
 	require!(tag.chars().all(|c| c.is_alphanumeric() || c == '-'), ErrorCode::UnallowedChars);
 	require!(content.chars().count() <= 280, ErrorCode::ContentTooLong);

@@ -20,7 +20,6 @@ pub fn send_tweet(ctx: Context<SendTweet>, mut tag: String, content: String) -> 
 	tweet.timestamp = clock.unix_timestamp;
 	tweet.tag = tag.to_lowercase();
 	tweet.content = content;
-	tweet.edited = false;
 
 	Ok(())
 }
@@ -35,11 +34,17 @@ pub fn update_tweet(ctx: Context<UpdateTweet>, new_tag: String, new_content: Str
 
 	tweet.tag = new_tag;
 	tweet.content = new_content;
-	tweet.edited = true;
+	tweet.state = Some(TweetState::Edited);
 
 	Ok(())
 }
 
-pub fn delete_tweet(_ctx: Context<DeleteTweet>) -> Result<()> {
+pub fn delete_tweet(ctx: Context<DeleteTweet>) -> Result<()> {
+	let tweet = &mut ctx.accounts.tweet;
+
+	tweet.tag = "[deleted]".to_string();
+	tweet.content = "".to_string();
+    tweet.state = Some(TweetState::Deleted);
+
 	Ok(())
 }

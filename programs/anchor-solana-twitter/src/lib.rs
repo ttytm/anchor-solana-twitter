@@ -20,8 +20,8 @@ pub mod anchor_solana_twitter {
 		instructions::update_tweet(ctx, new_tag, new_content)
 	}
 
-	pub fn delete_tweet(_ctx: Context<DeleteTweet>) -> Result<()> {
-		instructions::delete_tweet(_ctx)
+	pub fn delete_tweet(ctx: Context<DeleteTweet>) -> Result<()> {
+		instructions::delete_tweet(ctx)
 	}
 
 	// Comment
@@ -33,8 +33,8 @@ pub mod anchor_solana_twitter {
 		instructions::update_comment(ctx, new_content)
 	}
 
-	pub fn delete_comment(_ctx: Context<DeleteComment>) -> Result<()> {
-		instructions::delete_comment(_ctx)
+	pub fn delete_comment(ctx: Context<DeleteComment>) -> Result<()> {
+		instructions::delete_comment(ctx)
 	}
 
 	// Voting

@@ -4,10 +4,10 @@ use anchor_lang::prelude::*;
 pub struct Comment {
 	pub user: Pubkey,
 	pub tweet: Pubkey,  // Pubkey of commented tweet
-	pub parent: Pubkey, // Pubkey of parent comment
+	pub parent: Pubkey, // Pubkey of parent, might be another comment or the commented tweet
 	pub timestamp: i64,
 	pub content: String,
-	pub edited: bool,
+	pub state: Option<CommentState>,
 }
 
 #[derive(Accounts)]
@@ -32,4 +32,10 @@ pub struct DeleteComment<'info> {
 	#[account(mut, has_one = user)]
 	pub comment: Account<'info, Comment>,
 	pub user: Signer<'info>,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq)]
+pub enum CommentState {
+	Edited,
+	Deleted,
 }

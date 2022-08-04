@@ -126,7 +126,7 @@ describe("anchor-solana-twitter", () => {
 			const updatedTweet = await program.account.tweet.fetch(tweetTwo.publicKey);
 			assert.equal(updatedTweet.tag, "baneyneys");
 			assert.equal(updatedTweet.content, "Freshavacados!");
-			assert.equal(updatedTweet.edited, true);
+			assert.deepEqual(updatedTweet.state, { edited: {} });
 		});
 
 		it("can send a tweet without a tag", async () => {
@@ -166,7 +166,7 @@ describe("anchor-solana-twitter", () => {
 			const tweet = await sendTweet(user, "web3", "takes over!");
 			assert.equal(tweet.account.tag, "web3");
 			assert.equal(tweet.account.content, "takes over!");
-			assert.equal(tweet.account.edited, false);
+			assert.equal(tweet.account.state, null);
 
 			// Try to update tweet with same topic and content
 			try {
@@ -244,7 +244,7 @@ describe("anchor-solana-twitter", () => {
 				.rpc();
 			const updatedTweetComment = await program.account.comment.fetch(tweetComment.publicKey);
 			assert.equal(updatedTweetComment.content, "🍠");
-			assert.equal(updatedTweetComment.edited, true);
+			assert.deepEqual(updatedTweetComment.state, { edited: {} });
 
 			// Comment on a comment
 			const commentComment = await sendComment({ user, tweetParent: tweet.publicKey, content: "😍", directParent: tweetComment.publicKey });

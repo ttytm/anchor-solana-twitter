@@ -14,7 +14,6 @@ pub fn send_comment(ctx: Context<SendComment>, tweet: Pubkey, content: String, p
 	comment.parent = parent.unwrap_or(tweet);
 	comment.timestamp = clock.unix_timestamp;
 	comment.content = content;
-	comment.edited = false;
 
 	Ok(())
 }
@@ -25,7 +24,7 @@ pub fn update_comment(ctx: Context<UpdateComment>, new_content: String) -> Resul
 	require!(comment.content != new_content, ErrorCode::NothingChanged);
 
 	comment.content = new_content;
-	comment.edited = true;
+	comment.state = Some(CommentState::Edited);
 
 	Ok(())
 }
@@ -34,6 +33,7 @@ pub fn delete_comment(ctx: Context<DeleteComment>) -> Result<()> {
 	let comment = &mut ctx.accounts.comment;
 
 	comment.content = "".to_string();
+	comment.state = Some(CommentState::Deleted);
 
 	Ok(())
 }

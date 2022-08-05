@@ -182,7 +182,7 @@ describe("anchor-solana-twitter", () => {
 
 		it("can delete own tweets", async () => {
 			// Send tweet #6 (#4 by userOne)
-			const tweetToDelete = await sendTweet(user, "shwubdi", "gm");
+			const tweetToDelete = await sendTweet(user, "gm", "Can I delete this?");
 
 			await program.methods.deleteTweet()
 				.accounts({ tweet: tweetToDelete.publicKey, user: user.publicKey })
@@ -190,7 +190,6 @@ describe("anchor-solana-twitter", () => {
 			const deletedTweet = await program.account.tweet.fetch(tweetToDelete.publicKey);
 			assert.equal(deletedTweet.tag, "[deleted]");
 			assert.equal(deletedTweet.content, "");
-			// assert.ok((await program.account.tweet.fetchNullable(tweetToDelete.publicKey)) === null);
 
 			// Try to delete other users tweet
 			const otherUser = await createUser();
@@ -263,9 +262,8 @@ describe("anchor-solana-twitter", () => {
 
 	describe("votings", () => {
 		it("can vote and update votings for tweets", async () => {
-			const [otherUser, confusedUser] = await createUsers(2)
+			const [otherUser] = await createUsers(2)
 			const tweet = await sendTweet(otherUser, "linux", "Don't forget about the GNU 🦬");
-			const anotherTweet = await sendTweet(confusedUser, "hejustwantsourbest", "I like BG 🤓");
 
 			const voting = await vote(user, tweet.publicKey, { dislike: {} })
 			assert.equal(voting.account.tweet.toString(), tweet.publicKey.toString());
@@ -278,11 +276,6 @@ describe("anchor-solana-twitter", () => {
 			const updatedVoting = await program.account.voting.fetch(voting.pda);
 			assert.deepEqual(updatedVoting.result, { like: {} });
 
-			// Same user votes for another tweet
-			const anotherVoting = await vote(user, anotherTweet.publicKey, { dislike: {} })
-			assert.equal(anotherVoting.account.tweet.toString(), anotherTweet.publicKey.toString());
-			assert.deepEqual(anotherVoting.account.result, { dislike: {} });
-
 			// A user votes for tweet that another user has already voted for
 			const otherUsersVoting = await vote(otherUser, tweet.publicKey, { dislike: {} })
 			assert.equal(otherUsersVoting.account.tweet.toString(), tweet.publicKey.toString());
@@ -294,7 +287,7 @@ describe("anchor-solana-twitter", () => {
 				// offset: 8 Discriminator
 				{ memcmp: { offset: 8, bytes: user.publicKey.toBase58() } }
 			]);
-			assert.equal(userVotings.length, 2);
+			assert.equal(userVotings.length, 1);
 			assert.ok(userVotings.every((voting) => voting.account.user.toBase58() === user.publicKey.toBase58()));
 
 			// Get liked tweets

@@ -45,6 +45,15 @@ pub mod anchor_solana_twitter {
 	pub fn update_voting(ctx: Context<UpdateVoting>, new_result: VotingResult) -> Result<()> {
 		instructions::update_voting(ctx, new_result)
 	}
+    
+	// Reaction
+	pub fn react(ctx: Context<React>, tweet: Pubkey, reaction_char: String, reaction_bump: u8) -> Result<()> {
+		instructions::react(ctx, tweet, reaction_char, reaction_bump)
+	}
+
+	pub fn update_reaction(ctx: Context<UpdateReaction>, new_reaction_char: String) -> Result<()> {
+		instructions::update_reaction(ctx, new_reaction_char)
+	}
 
 	// DM
 	pub fn send_dm(ctx: Context<SendDm>, recipient: Pubkey, content: String) -> Result<()> {

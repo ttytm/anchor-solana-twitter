@@ -1,11 +1,10 @@
 use anchor_lang::prelude::*;
-use anchor_lang::AnchorSerialize;
 
 #[account]
 pub struct Reaction {
 	pub user: Pubkey,
 	pub tweet: Pubkey,
-	pub reaction_char: String, // it doesn't seem that we can use char here
+	pub reaction_char: ReactionChar,
 	pub bump: u8,
 }
 
@@ -31,4 +30,15 @@ pub struct UpdateReaction<'info> {
         seeds = [b"reaction", user.key().as_ref(), reaction.tweet.key().as_ref()], 
         bump = reaction.bump)]
 	pub reaction: Account<'info, Reaction>,
+}
+
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, PartialOrd)]
+pub enum ReactionChar {
+	ThumbsUp,
+	Party,
+	Haha,
+	Wow,
+	Rocket,
+	Eyes,
+	Invalid,
 }

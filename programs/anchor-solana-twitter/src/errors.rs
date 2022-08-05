@@ -5,7 +5,7 @@ pub enum ErrorCode {
 	#[msg("Exceeding maximum tag length of 50 characters")]
 	TagTooLong,
 	#[msg("Tag contains unallowed characters")]
-	UnallowedChars,
+	TagUnallowedChars,
 	#[msg("Trying to send a tweet without content")]
 	NoContent,
 	#[msg("Exceeding maximum content length of 280 characters")]
@@ -18,4 +18,6 @@ pub enum ErrorCode {
 	AliasPresent,
 	#[msg("Exceeding maximum tag length of 50 characters.")]
 	AliasTooLong,
+	#[msg("Reaction contains unallowed characters")]
+	ReactionUnallowedChars,
 }

@@ -13,8 +13,8 @@ pub struct Reaction {
 pub struct React<'info> {
 	#[account(init, 
         payer = user, 
-        // 8 discriminator + 32 user + 32 tweet + 8 timestamp + 4 string prefix + 4 utf8 char + 1 bump
-        space = 8 + 32 + 32 + 4 + 4 + 1, 
+        // 8 discriminator + 32 user + 32 tweet + 8 timestamp + 1 ReactionChar enum + 1 bump
+        space = 8 + 32 + 32 + 1 + 1, 
         seeds = [b"reaction", user.key().as_ref(), tweet.key().as_ref()], 
         bump)]
 	pub reaction: Account<'info, Reaction>,

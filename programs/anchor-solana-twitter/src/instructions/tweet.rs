@@ -7,9 +7,9 @@ pub fn send_tweet(ctx: Context<SendTweet>, mut tag: String, content: String) -> 
 	let user: &Signer = &ctx.accounts.user;
 	let clock: Clock = Clock::get().unwrap();
 
-	require!(tag.chars().count() <= 50, ErrorCode::TagTooLong);
-	require!(tag.chars().all(|c| c.is_alphanumeric() || c == '-'), ErrorCode::TagUnallowedChars);
-	require!(content.chars().count() <= 280, ErrorCode::ContentTooLong);
+	require!(tag.chars().count() <= 50, ErrorCode::TooLong);
+	require!(tag.chars().all(|c| c.is_alphanumeric() || c == '-'), ErrorCode::UnallowedChars);
+	require!(content.chars().count() <= 280, ErrorCode::TooLong);
 	require!(content.chars().count() > 0, ErrorCode::NoContent);
 
 	if tag == "" {
@@ -28,8 +28,8 @@ pub fn update_tweet(ctx: Context<UpdateTweet>, new_tag: String, new_content: Str
 	let tweet = &mut ctx.accounts.tweet;
 
 	require!(tweet.tag != new_tag || tweet.content != new_content, ErrorCode::NothingChanged);
-	require!(new_tag.chars().count() <= 50, ErrorCode::TagTooLong);
-	require!(new_content.chars().count() <= 280, ErrorCode::ContentTooLong);
+	require!(new_tag.chars().count() <= 50, ErrorCode::TooLong);
+	require!(new_content.chars().count() <= 280, ErrorCode::TooLong);
 	require!(new_content.chars().count() > 0, ErrorCode::NoContent);
 
 	tweet.tag = new_tag;
@@ -44,7 +44,7 @@ pub fn delete_tweet(ctx: Context<DeleteTweet>) -> Result<()> {
 
 	tweet.tag = "[deleted]".to_string();
 	tweet.content = "".to_string();
-    tweet.state = Some(TweetState::Deleted);
+	tweet.state = Some(TweetState::Deleted);
 
 	Ok(())
 }

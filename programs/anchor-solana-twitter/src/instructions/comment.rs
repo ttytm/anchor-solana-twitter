@@ -7,7 +7,7 @@ pub fn send_comment(ctx: Context<SendComment>, tweet: Pubkey, content: String, p
 	let user: &Signer = &ctx.accounts.user;
 	let clock: Clock = Clock::get().unwrap();
 
-	require!(content.chars().count() <= 280, ErrorCode::ContentTooLong);
+	require!(content.chars().count() <= 280, ErrorCode::TooLong);
 
 	comment.user = *user.key;
 	comment.tweet = tweet;

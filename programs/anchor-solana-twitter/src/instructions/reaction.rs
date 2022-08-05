@@ -6,7 +6,7 @@ pub fn react(ctx: Context<React>, tweet: Pubkey, input_char: String, reaction_bu
 	let reaction = &mut ctx.accounts.reaction;
 	let reaction_char = validate_reaction(input_char.chars().nth(0).unwrap());
 
-	require!(reaction_char != ReactionChar::Invalid, ErrorCode::ReactionUnallowedChars);
+	require!(reaction_char != ReactionChar::Invalid, ErrorCode::UnallowedChars);
 
 	reaction.user = *ctx.accounts.user.key;
 	reaction.tweet = tweet;

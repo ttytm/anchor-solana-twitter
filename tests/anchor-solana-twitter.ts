@@ -151,13 +151,13 @@ describe("anchor-solana-twitter", () => {
 				const tagWith51Chars = "x".repeat(51);
 				await sendTweet(user, tagWith51Chars, "takes over!");
 			} catch (err) {
-				assert.equal(err.error.errorCode.code, "TagTooLong");
+				assert.equal(err.error.errorCode.code, "TooLong");
 			}
 			try {
 				const contentWith281Chars = "x".repeat(281);
 				await sendTweet(user, "veganism", contentWith281Chars);
 			} catch (err) {
-				assert.equal(err.error.errorCode.code, "ContentTooLong");
+				assert.equal(err.error.errorCode.code, "TooLong");
 			}
 		});
 

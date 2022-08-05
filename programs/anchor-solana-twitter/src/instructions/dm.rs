@@ -7,7 +7,7 @@ pub fn send_dm(ctx: Context<SendDm>, recipient: Pubkey, content: String) -> Resu
 	let user: &Signer = &ctx.accounts.user;
 	let clock: Clock = Clock::get().unwrap();
 
-	require!(content.chars().count() <= 280, ErrorCode::ContentTooLong);
+	require!(content.chars().count() <= 280, ErrorCode::TooLong);
 
 	dm.user = *user.key;
 	dm.recipient = recipient;
@@ -22,7 +22,7 @@ pub fn update_dm(ctx: Context<UpdateDm>, new_content: String) -> Result<()> {
 	let dm = &mut ctx.accounts.dm;
 
 	require!(dm.content != new_content, ErrorCode::NothingChanged);
-	require!(new_content.chars().count() <= 280, ErrorCode::ContentTooLong);
+	require!(new_content.chars().count() <= 280, ErrorCode::TooLong);
 	require!(new_content.chars().count() > 0, ErrorCode::NoContent);
 
 	dm.content = new_content;

@@ -80,4 +80,17 @@ pub mod anchor_solana_twitter {
 	pub fn delete_user_alias(_ctx: Context<DeleteUserAlias>) -> Result<()> {
 		instructions::delete_user_alias(_ctx)
 	}
+    
+	// Status
+	pub fn create_status(ctx: Context<CreateStatus>, alias: String) -> Result<()> {
+		instructions::create_status(ctx, alias)
+	}
+
+	pub fn update_status(ctx: Context<UpdateStatus>, new_alias: String) -> Result<()> {
+		instructions::update_status(ctx, new_alias)
+	}
+
+	pub fn delete_status(_ctx: Context<DeleteStatus>) -> Result<()> {
+		instructions::delete_status(_ctx)
+	}
 }

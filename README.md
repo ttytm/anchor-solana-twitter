@@ -2,7 +2,7 @@
 
 Extends and refactors the v1-branch.
 
-## Major changes
+## Major Changes
 
 -  Votings are their own accounts using PDAs, instead of just updating a counter on an existing tweet
 
@@ -23,7 +23,7 @@ Extends and refactors the v1-branch.
 
    -  abandon deprecated `.rpc` in favor of `.methods` syntax
 
-## Tests
+## Running
 
 The installation of the prerequisites to run an anchor program, is nicely explained in the [anchor book][1].
 
@@ -36,7 +36,7 @@ Building and running the test can be done with `anchor test`.
 To use the tests while working on a frontend run the localnet with `anchor localnet`.<br>
 In another terminal airdrop your wallet some SOL and load the test `solana airdrop 1000 <YourPhantomWalletPubKey> && anchor run test`.
 
-### Tested functionalities
+### Tested Functionalities
 
 ```
 ❯ anchor test                                                                                              
@@ -63,3 +63,9 @@ anchor-solana-twitter
 
 [1]: https://book.anchor-lang.com/getting_started/installation.html
 
+## Frontend Showcase
+
+To showcase the functionalities of this app you can check out a frontend implementation using SvelteKit on https://twitter-with-ass.vercel.app/ - _WIP_
+
+
+<a href="https://twitter-with-ass.vercel.app/" target="_blank"><img src="assets/frontend-preview.png" ></a>

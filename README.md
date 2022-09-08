@@ -29,8 +29,6 @@ The installation of the prerequisites to run an anchor program, is nicely explai
 
 Having the prerequisites out of the way, the `yarn` command will load some program dependencies.
 
-To then be able to run the tests: update the path of **`wallet`** in the `Anchor.toml` file under the `[provider]` section according to your systems configuration. Usually, it should be enough to change the `<username>` in the home path.
-
 Building and running the test can be done with `anchor test`.
 
 To use the tests while working on a frontend run the localnet with `anchor localnet`.<br>

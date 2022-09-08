@@ -25,6 +25,10 @@ pub fn update_reaction(ctx: Context<UpdateReaction>, input_char: String) -> Resu
 	Ok(())
 }
 
+pub fn delete_reaction(_ctx: Context<DeleteReaction>) -> Result<()> {
+	Ok(())
+}
+
 impl ReactionChar {
 	fn validate(reaction_char: char) -> Self {
 		match reaction_char {

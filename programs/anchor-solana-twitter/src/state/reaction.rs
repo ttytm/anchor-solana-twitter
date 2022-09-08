@@ -32,6 +32,13 @@ pub struct UpdateReaction<'info> {
 	pub reaction: Account<'info, Reaction>,
 }
 
+#[derive(Accounts)]
+pub struct DeleteReaction<'info> {
+	pub user: Signer<'info>,
+	#[account(mut, close = user, seeds = [b"reaction", user.key().as_ref(), reaction.tweet.key().as_ref()], bump = reaction.bump)]
+	pub reaction: Account<'info, Reaction>,
+}
+
 #[derive(AnchorSerialize, AnchorDeserialize, Clone, PartialEq, Eq, PartialOrd)]
 pub enum ReactionChar {
 	ThumbsUp,

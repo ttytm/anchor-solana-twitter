@@ -5,7 +5,7 @@ import { program, user } from "../tests";
 import { sendTweet } from "../tests/1-tweets";
 
 describe("reactions", () => {
-	it("can react on tweets and update reactions", async () => {
+	it("can react on tweets and update and delete reactions", async () => {
 		const tweet = await sendTweet(user, "linux", "Don't forget about the GNU 🦬");
 
 		const [reactionPDA, bump] = await PublicKey.findProgramAddress([
@@ -30,9 +30,13 @@ describe("reactions", () => {
 		const updatedReaction = await program.account.reaction.fetch(reactionPDA);
 		assert.deepEqual(updatedReaction.reactionChar, { eyes: {} });
 
+		await program.methods.deleteReaction()
+			.accounts({ user: user.publicKey, reaction: reactionPDA })
+			.rpc();
+		assert.ok((await program.account.reaction.fetchNullable(reactionPDA)) === null);
 	})
 
-	it("cannot send other then predefined reaction", async () => {
+	it("cannot send other then predefined reactions", async () => {
 		const tweet = await sendTweet(user, "linux", "Don't forget about the GNU 🦬");
 
 		const [reactionPDA, bump] = await PublicKey.findProgramAddress([
@@ -49,6 +53,5 @@ describe("reactions", () => {
 			assert.equal(err.error.errorCode.code, "UnallowedChars");
 		}
 	});
-
 });
 

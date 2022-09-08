@@ -55,6 +55,10 @@ pub mod anchor_solana_twitter {
 		instructions::update_reaction(ctx, new_reaction_char)
 	}
 
+	pub fn delete_reaction(_ctx: Context<DeleteReaction>) -> Result<()> {
+		instructions::delete_reaction(_ctx)
+	}
+
 	// DM
 	pub fn send_dm(ctx: Context<SendDm>, recipient: Pubkey, content: String) -> Result<()> {
 		instructions::send_dm(ctx, recipient, content)

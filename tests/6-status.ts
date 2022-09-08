@@ -1,5 +1,5 @@
-import * as anchor from "@project-serum/anchor";
 import * as assert from "assert";
+import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { program, user } from "../tests";
 

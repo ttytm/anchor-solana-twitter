@@ -1,6 +1,27 @@
 import * as assert from "assert";
+import * as anchor from "@project-serum/anchor";
+import { provider, program, user, createUser } from "../tests";
+import { Keypair } from "@solana/web3.js";
 import * as bs58 from "bs58";
-import { provider, program, user, sendTweet, createUser } from "../tests";
+
+// Falling back to `user`: any, as the types of a generated users keypair(wallet) and 
+// `provider.wallet` - which is used as the default user in the scope of this test - differ.
+export const sendTweet = async (user: any, tag: string, content: string) => {
+	const tweetKeypair = Keypair.generate();
+
+	await program.methods.sendTweet(tag, content)
+		.accounts({
+			tweet: tweetKeypair.publicKey,
+			user: user.publicKey,
+			systemProgram: anchor.web3.SystemProgram.programId,
+		})
+		.signers(user instanceof (anchor.Wallet) ? [tweetKeypair] : [user, tweetKeypair])
+		.rpc();
+
+	// Fetch the created tweet
+	const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
+	return { publicKey: tweetKeypair.publicKey, account: tweet }
+};
 
 describe("tweets", () => {
 	it("can send and update tweets", async () => {

@@ -1,9 +1,25 @@
 import * as assert from "assert";
-import { PublicKey } from "@solana/web3.js";
-import { program, user, sendDm } from "../tests";
+import * as anchor from "@project-serum/anchor";
+import { PublicKey, Keypair } from "@solana/web3.js";
+import { program, user } from "../tests";
 
 // Hardcode address(e.g., your  phantom wallet) to allow testing dms in frontend
 const dmRecipient = new PublicKey("7aCWNQmgu5oi4W9kQBRRiuBkUMqCuj5xTA1DsT7vz8qa");
+
+const sendDm = async (user: any, recipient: PublicKey, content: string) => {
+	const dmKeypair = Keypair.generate();
+	await program.methods.sendDm(recipient, content)
+		.accounts({
+			dm: dmKeypair.publicKey,
+			user: user.publicKey,
+			systemProgram: anchor.web3.SystemProgram.programId,
+		})
+		.signers(user instanceof (anchor.Wallet as any) ? [dmKeypair] : [user, dmKeypair])
+		.rpc();
+
+	const dm = await program.account.dm.fetch(dmKeypair.publicKey);
+	return { publicKey: dmKeypair.publicKey, account: dm }
+};
 
 describe("direct messages", () => {
 	it("can send and update dms", async () => {

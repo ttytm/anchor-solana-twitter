@@ -1,5 +1,24 @@
 import * as assert from "assert";
-import { program, user, createUsers, sendTweet, vote } from "../tests";
+import * as anchor from "@project-serum/anchor";
+import { PublicKey } from "@solana/web3.js";
+import { program, user, createUsers } from "../tests";
+import { sendTweet } from "../tests/1-tweets";
+
+const vote = async (user: any, tweet: PublicKey, result: {}) => {
+	const [votingPDA, bump] = await PublicKey.findProgramAddress([
+		anchor.utils.bytes.utf8.encode("voting"),
+		user.publicKey.toBuffer(),
+		tweet.toBuffer(),
+	], program.programId);
+
+	await program.methods.vote(tweet, result, bump)
+		.accounts({ user: user.publicKey, voting: votingPDA })
+		.signers(user instanceof (anchor.Wallet as any) ? [] : [user])
+		.rpc();
+
+	const voting = await program.account.voting.fetch(votingPDA);
+	return { pda: votingPDA, account: voting }
+}
 
 describe("votings", () => {
 	it("can vote and update a voting", async () => {

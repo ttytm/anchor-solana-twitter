@@ -1,7 +1,8 @@
-import * as anchor from "@project-serum/anchor";
 import * as assert from "assert";
+import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { program, user, sendTweet } from "../tests";
+import { program, user } from "../tests";
+import { sendTweet } from "../tests/1-tweets";
 
 describe("reactions", () => {
 	it("can react on tweets and update reactions", async () => {
@@ -39,7 +40,6 @@ describe("reactions", () => {
 			user.publicKey.toBuffer(),
 			tweet.publicKey.toBuffer(),
 		], program.programId);
-
 
 		try {
 			await program.methods.react(tweet.publicKey, "💩", bump)

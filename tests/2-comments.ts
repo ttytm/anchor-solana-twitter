@@ -1,5 +1,24 @@
 import * as assert from "assert";
-import { program, user, sendTweet, sendComment } from "../tests";
+import * as anchor from "@project-serum/anchor";
+import { PublicKey, Keypair } from "@solana/web3.js";
+import { program, user } from "../tests";
+import { sendTweet } from "../tests/1-tweets";
+
+const sendComment = async ({ user, tweetParent, content, directParent }: { user: any; tweetParent: PublicKey; content: string; directParent: PublicKey; }) => {
+	const commentKeypair = Keypair.generate();
+
+	await program.methods.sendComment(tweetParent, content, directParent)
+		.accounts({
+			comment: commentKeypair.publicKey,
+			user: user.publicKey,
+			systemProgram: anchor.web3.SystemProgram.programId,
+		})
+		.signers(user instanceof (anchor.Wallet as any) ? [commentKeypair] : [user, commentKeypair])
+		.rpc();
+
+	const comment = await program.account.comment.fetch(commentKeypair.publicKey);
+	return { publicKey: commentKeypair.publicKey, account: comment }
+};
 
 describe("comments", () => {
 	it("can comment and update comments", async () => {

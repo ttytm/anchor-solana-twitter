@@ -40,25 +40,40 @@ In another terminal airdrop your wallet some SOL and load the test `solana airdr
 
 ```
 ❯ anchor test                                                                                              
-anchor-solana-twitter
-	tweets
-		✔ can send and update tweets
-		✔ can send a tweet without a tag
-		✔ cannot send a tweet without content
-		✔ cannot send a tweet with a tag > 50 or content > 280 characters
-		✔ cannot update a tweet without changes
-		✔ can delete own tweets
-		✔ can fetch and filter tweets
-	comments
-		✔ can send, update and delete comments
-	votings
-		✔ can vote and update votings for tweets
-		✔ can derive tweets from a users votings
-	direct messages
-		✔ can send and update direct messages to other users
-		✔ can fetch and filter a users direct messages
-	user alias
-		✔ can create, update and delete a user alias
+
+tweets
+  ✔ can send and update tweets
+  ✔ can send a tweet without a tag
+  ✔ cannot send a tweet without content
+  ✔ cannot send a tweet with a tag > 50 or content > 280 characters
+  ✔ cannot update a tweet without changes
+  ✔ can delete own tweets
+  ✔ can fetch and filter tweets
+
+comments
+  ✔ can comment and update comments
+  ✔ can delete comments
+
+votings
+  ✔ can vote and update a voting
+  ✔ can derive tweets from votings
+
+direct messages
+  ✔ can send and update dms
+  ✔ can delete dms
+  ✔ can fetch and filter dms
+
+user alias
+  ✔ can create and update a user alias
+  ✔ can delete a user alias
+
+status
+  ✔ can set a status message with up to 50 characters
+  ✔ can delete a status message
+
+reactions
+  ✔ can react on tweets and update and delete reactions
+  ✔ cannot send other then predefined reactions
 ```
 
 [1]: https://book.anchor-lang.com/getting_started/installation.html

@@ -30,7 +30,7 @@ describe("status", () => {
 
 	});
 
-	it("can delete a status", async () => {
+	it("can delete a status message", async () => {
 		const [statusPDA, _] = await PublicKey.findProgramAddress(
 			[anchor.utils.bytes.utf8.encode("status"), user.publicKey.toBuffer()],
 			program.programId

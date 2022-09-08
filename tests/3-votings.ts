@@ -21,7 +21,7 @@ const vote = async (user: any, tweet: PublicKey, result: {}) => {
 }
 
 describe("votings", () => {
-	it("can vote and update a voting", async () => {
+	it("can vote and update votings", async () => {
 		const [otherUser] = await createUsers(2)
 		const tweet = await sendTweet(otherUser, "linux", "Don't forget about the GNU 🦬");
 

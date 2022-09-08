@@ -55,7 +55,7 @@ comments
   ✔ can delete comments
 
 votings
-  ✔ can vote and update a voting
+  ✔ can vote and update votings
   ✔ can derive tweets from votings
 
 direct messages

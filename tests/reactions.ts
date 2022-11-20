@@ -2,19 +2,27 @@ import * as assert from "assert";
 import * as anchor from "@project-serum/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { program, user } from "../tests";
-import { sendTweet } from "../tests/1-tweets";
+import { sendTweet } from "../tests/tweets";
 
-describe("reactions", () => {
+export default () => {
 	it("can react on tweets and update and delete reactions", async () => {
-		const tweet = await sendTweet(user, "linux", "Don't forget about the GNU 🦬");
+		const tweet = await sendTweet(
+			user,
+			"linux",
+			"Don't forget about the GNU 🦬"
+		);
 
-		const [reactionPDA, bump] = await PublicKey.findProgramAddress([
-			anchor.utils.bytes.utf8.encode("reaction"),
-			user.publicKey.toBuffer(),
-			tweet.publicKey.toBuffer(),
-		], program.programId);
+		const [reactionPDA, bump] = await PublicKey.findProgramAddress(
+			[
+				anchor.utils.bytes.utf8.encode("reaction"),
+				user.publicKey.toBuffer(),
+				tweet.publicKey.toBuffer(),
+			],
+			program.programId
+		);
 
-		await program.methods.react(tweet.publicKey, "🚀", bump)
+		await program.methods
+			.react(tweet.publicKey, "🚀", bump)
 			.accounts({ user: user.publicKey, reaction: reactionPDA })
 			.rpc();
 
@@ -24,34 +32,45 @@ describe("reactions", () => {
 		assert.deepEqual(reaction.reactionChar, { rocket: {} });
 
 		// Update reaction
-		await program.methods.updateReaction("👀")
+		await program.methods
+			.updateReaction("👀")
 			.accounts({ user: user.publicKey, reaction: reactionPDA })
 			.rpc();
 		const updatedReaction = await program.account.reaction.fetch(reactionPDA);
 		assert.deepEqual(updatedReaction.reactionChar, { eyes: {} });
 
-		await program.methods.deleteReaction()
+		await program.methods
+			.deleteReaction()
 			.accounts({ user: user.publicKey, reaction: reactionPDA })
 			.rpc();
-		assert.ok((await program.account.reaction.fetchNullable(reactionPDA)) === null);
-	})
+		assert.ok(
+			(await program.account.reaction.fetchNullable(reactionPDA)) === null
+		);
+	});
 
 	it("cannot send other then predefined reactions", async () => {
-		const tweet = await sendTweet(user, "linux", "Don't forget about the GNU 🦬");
+		const tweet = await sendTweet(
+			user,
+			"linux",
+			"Don't forget about the GNU 🦬"
+		);
 
-		const [reactionPDA, bump] = await PublicKey.findProgramAddress([
-			anchor.utils.bytes.utf8.encode("reaction"),
-			user.publicKey.toBuffer(),
-			tweet.publicKey.toBuffer(),
-		], program.programId);
+		const [reactionPDA, bump] = await PublicKey.findProgramAddress(
+			[
+				anchor.utils.bytes.utf8.encode("reaction"),
+				user.publicKey.toBuffer(),
+				tweet.publicKey.toBuffer(),
+			],
+			program.programId
+		);
 
 		try {
-			await program.methods.react(tweet.publicKey, "💩", bump)
+			await program.methods
+				.react(tweet.publicKey, "💩", bump)
 				.accounts({ user: user.publicKey, reaction: reactionPDA })
 				.rpc();
 		} catch (err) {
 			assert.equal(err.error.errorCode.code, "UnallowedChars");
 		}
 	});
-});
-
+};

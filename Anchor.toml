@@ -4,12 +4,16 @@ seeds = false
 [programs.localnet]
 anchor_solana_twitter = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
 
+[programs.devnet]
+anchor_solana_twitter = "mRWJZhEumPsgoi1pVsPgUVCkf4z8fiNpzphn21rztsH"
+
 [registry]
 url = "https://anchor.projectserum.com"
 
 [provider]
+# cluster = "devnet"
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
-test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+test = "./node_modules/ts-mocha/bin/ts-mocha -t 5000 tests/index.ts"

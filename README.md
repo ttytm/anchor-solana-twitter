@@ -1,35 +1,37 @@
 # anchor-solana-twitter
 
-Extends and refactors the v1-branch.
+Extends and refactors the [v1-branch][10].
 
-## Major Changes
+<details>
+<summary><b>Changes</b></summary>
 
--  Votings are their own accounts using PDAs, instead of just updating a counter on an existing tweet
+- Votings are their own accounts using PDAs, instead of just updating a counter on an existing tweet
 
-   -  enables to filter votings for a user
-   -  less costs for sending a vote
-   -  the `rating` counter on tweets becomes obsolete, which results in slimmer tweet accounts
+  - enables to filter votings for a user
+  - less costs for sending a vote
+  - the `rating` counter on tweets becomes obsolete, which results in slimmer tweet accounts
 
--  Direct messages are separate accounts instead of being a tweet
+- Direct messages are separate accounts instead of being a tweet
 
-   -  less cost on for dms
-   -  `recipient` on tweet account becomes obsolete
+  - less cost on for dms
+  - `recipient` on tweet account becomes obsolete
 
--  Comment functionality
+- Comment functionality
 
--  Users can create aliases
+- Users can create aliases
 
--  New api syntax for tests
+- New api syntax for tests
 
-   -  abandon deprecated `.rpc` in favor of `.methods` syntax
+  - abandon deprecated `.rpc` in favor of `.methods` syntax
+  </details>
 
 ## Running
 
-The installation of the prerequisites to run an anchor program, is nicely explained in the [anchor book][1].
+The installation of the prerequisites to run an anchor program is nicely explained in the [anchor book][20].
 
-Having the prerequisites out of the way, the `yarn` command will load some program dependencies.
+With the prerequisites out of the way, `npm i` installs the rest of the dependencies.
 
-Building and running the test can be done with `anchor test`.
+Then building and running the tests can be done with `anchor test`.
 
 To use the tests while working on a frontend run the localnet with `anchor localnet`.<br>
 In another terminal airdrop your wallet some SOL and load the test `solana airdrop 1000 <YourPhantomWalletPubKey> && anchor run test`.
@@ -37,7 +39,7 @@ In another terminal airdrop your wallet some SOL and load the test `solana airdr
 ### Tested Functionalities
 
 ```
-❯ anchor test                                                                                              
+❯ anchor test
 
 tweets
   ✔ can send and update tweets
@@ -74,11 +76,11 @@ reactions
   ✔ cannot send other then predefined reactions
 ```
 
-[1]: https://book.anchor-lang.com/getting_started/installation.html
-
 ## Frontend Showcase
 
 To showcase the functionalities of this app you can check out a frontend implementation using SvelteKit on https://twitter-with-ass.vercel.app/ - _WIP_
 
-
 <a href="https://twitter-with-ass.vercel.app/" target="_blank"><img src="assets/frontend-preview.png" ></a>
+
+[10]: https://github.com/tobealive/anchor-solana-twitter/tree/v1
+[20]: https://book.anchor-lang.com/getting_started/installation.html

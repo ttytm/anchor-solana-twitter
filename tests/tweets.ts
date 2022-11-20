@@ -1,29 +1,33 @@
 import * as assert from "assert";
 import * as anchor from "@project-serum/anchor";
-import { provider, program, user, createUser } from "../tests";
+import { program, user } from "../tests";
+import { createUser } from "./utils";
 import { Keypair } from "@solana/web3.js";
 import * as bs58 from "bs58";
 
-// Falling back to `user`: any, as the types of a generated users keypair(wallet) and 
-// `provider.wallet` - which is used as the default user in the scope of this test - differ.
+// Falling back to type `any` for `user` as the type definitions of `provider.wallet`(default user in this tests)
+// and other generated users `Keypair`(wallets) differ to much for a quick union-type assignment
 export const sendTweet = async (user: any, tag: string, content: string) => {
 	const tweetKeypair = Keypair.generate();
 
-	await program.methods.sendTweet(tag, content)
+	await program.methods
+		.sendTweet(tag, content)
 		.accounts({
 			tweet: tweetKeypair.publicKey,
 			user: user.publicKey,
 			systemProgram: anchor.web3.SystemProgram.programId,
 		})
-		.signers(user instanceof (anchor.Wallet) ? [tweetKeypair] : [user, tweetKeypair])
+		.signers(
+			user instanceof anchor.Wallet ? [tweetKeypair] : [user, tweetKeypair]
+		)
 		.rpc();
 
 	// Fetch the created tweet
 	const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
-	return { publicKey: tweetKeypair.publicKey, account: tweet }
+	return { publicKey: tweetKeypair.publicKey, account: tweet };
 };
 
-describe("tweets", () => {
+export default () => {
 	it("can send and update tweets", async () => {
 		// Send tweet #1
 		const tweet = await sendTweet(user, "veganism", "Hummus, am i right 🧆?");
@@ -37,13 +41,17 @@ describe("tweets", () => {
 
 		// Send tweet #2
 		const tweetTwo = await sendTweet(otherUser, "veganism", "Yay Tofu 🍜!");
-		assert.equal(tweetTwo.account.user.toBase58(), otherUser.publicKey.toBase58());
+		assert.equal(
+			tweetTwo.account.user.toBase58(),
+			otherUser.publicKey.toBase58()
+		);
 		assert.equal(tweetTwo.account.tag, "veganism");
 		assert.equal(tweetTwo.account.content, "Yay Tofu 🍜!");
 		assert.ok(tweetTwo.account.timestamp);
 
 		// Update tweet #2
-		await program.methods.updateTweet("baneyneys", "Freshavacados!")
+		await program.methods
+			.updateTweet("baneyneys", "Freshavacados!")
 			.accounts({ tweet: tweetTwo.publicKey, user: otherUser.publicKey })
 			.signers([otherUser])
 			.rpc();
@@ -58,7 +66,7 @@ describe("tweets", () => {
 	it("can send a tweet without a tag", async () => {
 		// Send tweet #3 (#2 by userOne)
 		const tweet = await sendTweet(user, "", "gm");
-		assert.equal(tweet.account.user.toBase58(), provider.wallet.publicKey.toBase58());
+		assert.equal(tweet.account.user.toBase58(), user.publicKey.toBase58());
 		assert.equal(tweet.account.tag, "[untagged]");
 		assert.equal(tweet.account.content, "gm");
 		assert.ok(tweet.account.timestamp);
@@ -96,24 +104,33 @@ describe("tweets", () => {
 
 		// Try to update tweet with same topic and content
 		try {
-			await program.methods.updateTweet("web3", "takes over!")
+			await program.methods
+				.updateTweet("web3", "takes over!")
 				.accounts({ tweet: tweet.publicKey, user: user.publicKey })
 				.rpc();
 		} catch (err) {
 			assert.equal(err.error.errorCode.code, "NothingChanged");
 			return;
 		}
-		assert.fail("The instruction should have failed with a tweet without changes.");
+		assert.fail(
+			"The instruction should have failed with a tweet without changes."
+		);
 	});
 
 	it("can delete own tweets", async () => {
 		// Send tweet #6 (#4 by userOne)
 		const tweetToDelete = await sendTweet(user, "gm", "Can I delete this?");
 
-		await program.methods.deleteTweet()
-			.accounts({ tweet: tweetToDelete.publicKey, user: user.publicKey })
+		await program.methods
+			.deleteTweet()
+			.accounts({
+				tweet: tweetToDelete.publicKey,
+				user: user.publicKey,
+			})
 			.rpc();
-		const deletedTweet = await program.account.tweet.fetch(tweetToDelete.publicKey);
+		const deletedTweet = await program.account.tweet.fetch(
+			tweetToDelete.publicKey
+		);
 		assert.equal(deletedTweet.tag, "[deleted]");
 		assert.equal(deletedTweet.content, "");
 
@@ -122,10 +139,13 @@ describe("tweets", () => {
 		// Send tweet #4
 		const tweet = await sendTweet(otherUser, "solana", "gm");
 		try {
-			await program.methods.deleteTweet()
+			await program.methods
+				.deleteTweet()
 				.accounts({ tweet: tweet.publicKey, user: user.publicKey })
 				.rpc();
-			assert.fail("We shouldn't be able to delete someone else's tweet but did.");
+			assert.fail(
+				"We shouldn't be able to delete someone else's tweet but did."
+			);
 		} catch (error) {
 			// Check if tweet account still exists with the right data
 			const tweetState = await program.account.tweet.fetch(tweet.publicKey);
@@ -144,14 +164,24 @@ describe("tweets", () => {
 		]);
 		// Check if the fetched amount of tweets is equal to those the use sent
 		assert.equal(userTweets.length, 4);
-		assert.ok(userTweets.every((tweet) => tweet.account.user.toBase58() === user.publicKey.toBase58()));
+		assert.ok(
+			userTweets.every(
+				(tweet) => tweet.account.user.toBase58() === user.publicKey.toBase58()
+			)
+		);
 
 		const tagTweets = await program.account.tweet.all([
 			// offset: 8 Discriminator + 32 User public key + 8 Timestamp + 4 Tag string prefix
-			{ memcmp: { offset: 8 + 32 + 8 + 4, bytes: bs58.encode(Buffer.from("veganism")) } },
+			{
+				memcmp: {
+					offset: 8 + 32 + 8 + 4,
+					bytes: bs58.encode(Buffer.from("veganism")),
+				},
+			},
 		]);
 		assert.equal(tagTweets.length, 1);
-		assert.ok(tagTweets.every((tweetAccount) => tweetAccount.account.tag === "veganism"));
+		assert.ok(
+			tagTweets.every((tweetAccount) => tweetAccount.account.tag === "veganism")
+		);
 	});
-});
-
+};

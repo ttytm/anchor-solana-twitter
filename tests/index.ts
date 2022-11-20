@@ -1,24 +1,28 @@
 import * as anchor from "@project-serum/anchor";
-import { Keypair } from "@solana/web3.js";
 import { AnchorSolanaTwitter } from "../target/types/anchor_solana_twitter";
 
-export const program = anchor.workspace.AnchorSolanaTwitter as anchor.Program<AnchorSolanaTwitter>;
-export const provider = anchor.AnchorProvider.env() as anchor.AnchorProvider;
-export const user = provider.wallet;
+// import test modules
+import tweets from "./tweets";
+import comments from "./comments";
+import votings from "./votings";
+import dms from "./dms";
+import alias from "./alias";
+import status from "./status";
+import reactions from "./reactions";
+
+export const program: anchor.Program<AnchorSolanaTwitter> =
+		anchor.workspace.AnchorSolanaTwitter,
+	provider = anchor.AnchorProvider.local(),
+	user = provider.wallet;
 
 anchor.setProvider(provider);
 
-// { == Helper functions ==> 
-export const createUser = async () => {
-	const userKeypair = Keypair.generate();
-	const userSignature = await provider.connection.requestAirdrop(userKeypair.publicKey, 10 * anchor.web3.LAMPORTS_PER_SOL);
-	await provider.connection.confirmTransaction(userSignature);
-	return userKeypair
-}
-
-export const createUsers = (num: number) => {
-	let promises = [];
-	for (let i = 0; i < num; i++) promises.push(createUser());
-	return Promise.all(promises);
-}
-// <== }
+describe("anchor-solana-twitter tests", () => {
+	describe("tweets", () => tweets());
+	describe("comments", () => comments());
+	describe("votings", () => votings());
+	describe("direct messages", () => dms());
+	describe("user alias", () => alias());
+	describe("status", () => status());
+	describe("reactions", () => reactions());
+});

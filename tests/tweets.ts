@@ -29,7 +29,7 @@ export const sendTweet = async (user: any, tag: string, content: string) => {
 
 export default () => {
 	it("can send and update tweets", async () => {
-		// Send tweet #1
+		// Send tweet No.1
 		const tweet = await sendTweet(user, "veganism", "Hummus, am i right 🧆?");
 		// Ensure it has the right data
 		assert.equal(tweet.account.user.toBase58(), user.publicKey.toBase58());
@@ -39,7 +39,7 @@ export default () => {
 
 		const otherUser = await createUser();
 
-		// Send tweet #2
+		// Send tweet No.2
 		const tweetTwo = await sendTweet(otherUser, "veganism", "Yay Tofu 🍜!");
 		assert.equal(
 			tweetTwo.account.user.toBase58(),
@@ -49,7 +49,7 @@ export default () => {
 		assert.equal(tweetTwo.account.content, "Yay Tofu 🍜!");
 		assert.ok(tweetTwo.account.timestamp);
 
-		// Update tweet #2
+		// Update tweet No.2
 		await program.methods
 			.updateTweet("baneyneys", "Freshavacados!")
 			.accounts({ tweet: tweetTwo.publicKey, user: otherUser.publicKey })
@@ -64,7 +64,7 @@ export default () => {
 	});
 
 	it("can send a tweet without a tag", async () => {
-		// Send tweet #3 (#2 by userOne)
+		// Send tweet No.3 (No.2 by userOne)
 		const tweet = await sendTweet(user, "", "gm");
 		assert.equal(tweet.account.user.toBase58(), user.publicKey.toBase58());
 		assert.equal(tweet.account.tag, "[untagged]");
@@ -96,7 +96,7 @@ export default () => {
 	});
 
 	it("cannot update a tweet without changes", async () => {
-		// Send tweet #5 (#3 by userOne)
+		// Send tweet No.5 (No.3 by userOne)
 		const tweet = await sendTweet(user, "web3", "takes over!");
 		assert.equal(tweet.account.tag, "web3");
 		assert.equal(tweet.account.content, "takes over!");
@@ -118,7 +118,7 @@ export default () => {
 	});
 
 	it("can delete own tweets", async () => {
-		// Send tweet #6 (#4 by userOne)
+		// Send tweet No.6 (No.4 by userOne)
 		const tweetToDelete = await sendTweet(user, "gm", "Can I delete this?");
 
 		await program.methods
@@ -136,7 +136,7 @@ export default () => {
 
 		// Try to delete other users tweet
 		const otherUser = await createUser();
-		// Send tweet #4
+		// Send tweet No.6
 		const tweet = await sendTweet(otherUser, "solana", "gm");
 		try {
 			await program.methods

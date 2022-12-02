@@ -5,9 +5,8 @@ import { createUser } from "./utils";
 import { Keypair } from "@solana/web3.js";
 import * as bs58 from "bs58";
 
-// Falling back to type `any` for `user` as the type definitions of `provider.wallet`(default user in this tests)
-// and other generated users `Keypair`(wallets) differ to much for a quick union-type assignment
-export const sendTweet = async (user: any, tag: string, content: string) => {
+// Helper function to send tweets from `provider.wallet`(default user in this tests) and other generated users(keypair-wallets)
+export const sendTweet = async (user, tag: string, content: string) => {
 	const tweetKeypair = Keypair.generate();
 
 	await program.methods
@@ -22,24 +21,24 @@ export const sendTweet = async (user: any, tag: string, content: string) => {
 		)
 		.rpc();
 
-	// Fetch the created tweet
+	// Fetch the created tweet and return it's pubkey and contents(account)
 	const tweet = await program.account.tweet.fetch(tweetKeypair.publicKey);
 	return { publicKey: tweetKeypair.publicKey, account: tweet };
 };
 
 export default () => {
 	it("can send and update tweets", async () => {
-		// Send tweet No.1
+		// Send tweet no.1
 		const tweet = await sendTweet(user, "veganism", "Hummus, am i right 🧆?");
+
 		// Ensure it has the right data
 		assert.equal(tweet.account.user.toBase58(), user.publicKey.toBase58());
 		assert.equal(tweet.account.tag, "veganism");
 		assert.equal(tweet.account.content, "Hummus, am i right 🧆?");
 		assert.ok(tweet.account.timestamp);
 
+		// Send tweet no.2 as another user
 		const otherUser = await createUser();
-
-		// Send tweet No.2
 		const tweetTwo = await sendTweet(otherUser, "veganism", "Yay Tofu 🍜!");
 		assert.equal(
 			tweetTwo.account.user.toBase58(),
@@ -49,7 +48,7 @@ export default () => {
 		assert.equal(tweetTwo.account.content, "Yay Tofu 🍜!");
 		assert.ok(tweetTwo.account.timestamp);
 
-		// Update tweet No.2
+		// Update tweet no.2
 		await program.methods
 			.updateTweet("baneyneys", "Freshavacados!")
 			.accounts({ tweet: tweetTwo.publicKey, user: otherUser.publicKey })
@@ -64,7 +63,7 @@ export default () => {
 	});
 
 	it("can send a tweet without a tag", async () => {
-		// Send tweet No.3 (No.2 by userOne)
+		// Send tweet no.3 (no.2 by userOne)
 		const tweet = await sendTweet(user, "", "gm");
 		assert.equal(tweet.account.user.toBase58(), user.publicKey.toBase58());
 		assert.equal(tweet.account.tag, "[untagged]");
@@ -77,48 +76,61 @@ export default () => {
 			await sendTweet(user, "gm", "");
 		} catch (err) {
 			assert.equal(err.error.errorCode.code, "NoContent");
+			return;
 		}
+
+		assert.fail("Sent a tweet without content.");
 	});
 
 	it("cannot send a tweet with a tag > 50 or content > 280 characters", async () => {
-		try {
-			const tagWith51Chars = "x".repeat(51);
-			await sendTweet(user, tagWith51Chars, "takes over!");
-		} catch (err) {
-			assert.equal(err.error.errorCode.code, "TooLong");
-		}
-		try {
-			const contentWith281Chars = "x".repeat(281);
-			await sendTweet(user, "veganism", contentWith281Chars);
-		} catch (err) {
-			assert.equal(err.error.errorCode.code, "TooLong");
-		}
+		await (async () => {
+			try {
+				const tagWith51Chars = "x".repeat(51);
+				await sendTweet(user, tagWith51Chars, "takes over!");
+			} catch (err) {
+				assert.equal(err.error.errorCode.code, "TooLong");
+				return;
+			}
+
+			assert.fail("Sent a tweet with a longer tag than allowed.");
+		})();
+
+		await (async () => {
+			try {
+				const contentWith281Chars = "x".repeat(281);
+				await sendTweet(user, "veganism", contentWith281Chars);
+			} catch (err) {
+				assert.equal(err.error.errorCode.code, "TooLong");
+				return;
+			}
+
+			assert.fail("Sent a tweet with longer content than allowed.");
+		})();
 	});
 
 	it("cannot update a tweet without changes", async () => {
-		// Send tweet No.5 (No.3 by userOne)
+		// Send tweet no.4 (no.3 by userOne)
 		const tweet = await sendTweet(user, "web3", "takes over!");
 		assert.equal(tweet.account.tag, "web3");
 		assert.equal(tweet.account.content, "takes over!");
 		assert.equal(tweet.account.state, null);
 
-		// Try to update tweet with same topic and content
+		// Try to update tweet without changes
 		try {
 			await program.methods
 				.updateTweet("web3", "takes over!")
 				.accounts({ tweet: tweet.publicKey, user: user.publicKey })
 				.rpc();
-		} catch (err) {
-			assert.equal(err.error.errorCode.code, "NothingChanged");
+		} catch (error) {
+			assert.equal(error.error.errorCode.code, "NothingChanged");
 			return;
 		}
-		assert.fail(
-			"The instruction should have failed with a tweet without changes."
-		);
+
+		assert.fail("Updated a tweet without changes.");
 	});
 
 	it("can delete own tweets", async () => {
-		// Send tweet No.6 (No.4 by userOne)
+		// Send tweet no.5 (no.4 by userOne)
 		const tweetToDelete = await sendTweet(user, "gm", "Can I delete this?");
 
 		await program.methods
@@ -136,22 +148,22 @@ export default () => {
 
 		// Try to delete other users tweet
 		const otherUser = await createUser();
-		// Send tweet No.6
+		// Send tweet no.6
 		const tweet = await sendTweet(otherUser, "solana", "gm");
 		try {
 			await program.methods
 				.deleteTweet()
 				.accounts({ tweet: tweet.publicKey, user: user.publicKey })
 				.rpc();
-			assert.fail(
-				"We shouldn't be able to delete someone else's tweet but did."
-			);
 		} catch (error) {
 			// Check if tweet account still exists with the right data
 			const tweetState = await program.account.tweet.fetch(tweet.publicKey);
 			assert.equal(tweetState.tag, "solana");
 			assert.equal(tweetState.content, "gm");
+			return;
 		}
+
+		assert.fail("Delete someone else's tweet");
 	});
 
 	it("can fetch and filter tweets", async () => {

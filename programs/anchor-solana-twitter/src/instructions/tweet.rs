@@ -39,6 +39,8 @@ pub fn update_tweet(ctx: Context<UpdateTweet>, new_tag: String, new_content: Str
 	Ok(())
 }
 
+// Instead of deleting a tweet "completely" (as is done with the alias, for example), we change the tag to [deleted] 
+// and remove the content so it's children(comments) who rely on the tweets publickey won't become error driven orphans
 pub fn delete_tweet(ctx: Context<DeleteTweet>) -> Result<()> {
 	let tweet = &mut ctx.accounts.tweet;
 
